@@ -18,7 +18,7 @@ nutri_clicks AS (
       AND created_at >= (SELECT start_dt FROM params)
       AND created_at < (SELECT end_dt_excl FROM params)
     WHERE message_type = 0
-      AND positionCaseInsensitive(content, 'Chat with Nutritionist') > 0
+      AND trim(content) = 'Chat with Nutritionist'
     GROUP BY conversation_id
 ),
 
@@ -28,8 +28,6 @@ first_incoming AS (
         argMin(content, created_at) AS first_message
     FROM postgres_hd_messages
     PREWHERE account_id = (SELECT account_id FROM params)
-      AND created_at >= (SELECT start_dt FROM params)
-      AND created_at < (SELECT end_dt_excl FROM params)
       AND conversation_id IN (SELECT conversation_id FROM nutri_clicks)
     WHERE message_type = 0
       AND positionCaseInsensitive(content, 'Chat with Nutritionist') = 0
