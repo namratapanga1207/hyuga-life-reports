@@ -61,21 +61,20 @@ export default function HomePage() {
     setLoading(true);
     setError(null);
     try {
-      const [summaryRes, ticketsRes] = await Promise.all([
-        fetch(`/api/summary?${qs}`),
-        fetch(`/api/tickets?${qs}`),
-      ]);
+      const res = await fetch(`/api/report?${qs}`);
+      const data = await res.json();
 
-      const summaryJson = await summaryRes.json();
-      const ticketsJson = await ticketsRes.json();
+      if (!res.ok) throw new Error(data.error ?? "Report failed");
 
-      if (!summaryRes.ok) throw new Error(summaryJson.error ?? "Summary failed");
-      if (!ticketsRes.ok) throw new Error(ticketsJson.error ?? "Ticket dump failed");
-
-      setSummary(summaryJson.rows ?? []);
-      setTickets(ticketsJson.rows ?? []);
+      setSummary(data.summary ?? []);
+      setTickets(data.tickets ?? []);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load reports");
+      const msg = e instanceof Error ? e.message : "Failed to load reports";
+      setError(
+        msg === "Failed to fetch"
+          ? "Request timed out — large date ranges can take 1–2 minutes. Try again or use a shorter range."
+          : msg,
+      );
     } finally {
       setLoading(false);
     }
@@ -154,7 +153,7 @@ export default function HomePage() {
               disabled={loading}
               onClick={runReport}
             >
-              {loading ? "Generating…" : "Generate reports"}
+              {loading ? "Generating… (may take 1–2 min)" : "Generate reports"}
             </button>
             <button
               type="button"

@@ -76,7 +76,7 @@ export async function fetchMessageContent(
   params: ReportParams,
 ): Promise<MessageRow[]> {
   const days = enumerateDays(params.startDate, params.endDate);
-  const chunks = await mapWithConcurrency(days, 4, (day) =>
+  const chunks = await mapWithConcurrency(days, 12, (day) =>
     fetchDay(day, params.accountId),
   );
   return chunks.flat();

@@ -1,3 +1,14 @@
 {
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "functions": {
+    "app/api/report/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/summary/route.ts": {
+      "maxDuration": 300
+    },
+    "app/api/tickets/route.ts": {
+      "maxDuration": 300
+    }
+  }
 }
