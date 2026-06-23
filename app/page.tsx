@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import type { SummaryRow } from "@/app/api/summary/route";
 import type { TicketRow } from "@/app/api/tickets/route";
+import { SUMMARY_HEADERS, TICKET_HEADERS } from "@/lib/sheet-headers";
 
 type Tab = "summary" | "tickets";
 
@@ -85,10 +86,10 @@ export default function HomePage() {
     if (tab === "summary") {
       exportXlsx(
         summary.map((r) => ({
-          Month: r.month,
-          "Chat with Nutritionist Clicks": r.chat_with_nutritionist_clicks,
-          "Entry Point 1": r.entry_point_1,
-          "Entry Point 2": r.entry_point_2,
+          [SUMMARY_HEADERS.month]: r.month,
+          [SUMMARY_HEADERS.chatClicks]: r.chat_with_nutritionist_clicks,
+          [SUMMARY_HEADERS.entryPoint1]: r.entry_point_1,
+          [SUMMARY_HEADERS.entryPoint2]: r.entry_point_2,
         })),
         "Summary",
         `hyuga_nutritionist_summary_${stamp}.xlsx`,
@@ -96,17 +97,12 @@ export default function HomePage() {
     } else {
       exportXlsx(
         tickets.map((r) => ({
-          Month: r.month,
-          "Phone Number": r.phone_number,
-          "Ticket Link": r.ticket_link,
-          "Ticket ID": r.ticket_id,
-          "First Message": r.first_message,
-          "Inbox ID": r.inbox_id,
-          "Entry Point": r.entry_point,
-          "Level 1 Tags": r.level_1_tags,
-          "Level 2 Tags": r.level_2_tags,
-          "System Tags": r.system_tags,
-          "Clicked Chat with Nutritionist": "Yes",
+          [TICKET_HEADERS.month]: r.month,
+          [TICKET_HEADERS.phoneNumber]: r.phone_number,
+          [TICKET_HEADERS.ticketLink]: r.ticket_link,
+          [TICKET_HEADERS.firstMessage]: r.first_message,
+          [TICKET_HEADERS.entryType]: r.entry_type,
+          [TICKET_HEADERS.clickedNutritionist]: "Yes",
         })),
         "Tickets",
         `hyuga_nutritionist_tickets_${stamp}.xlsx`,
@@ -118,10 +114,6 @@ export default function HomePage() {
     <main className="page">
       <header className="hero">
         <h1>Hyuga Life — Nutritionist Reports</h1>
-        <p>
-          Date-range reports matching the Colab workflow: monthly summary and ticket dump
-          (January-style sheet).
-        </p>
       </header>
 
       {configured === false && (
@@ -195,17 +187,17 @@ export default function HomePage() {
         {tab === "summary" && (
           <>
             <p className="meta">
-              Monthly chat clicks and entry-point counts for {startDate} → {endDate}
+              {startDate} → {endDate}
               {summary.length ? ` · ${summary.length} month(s)` : ""}
             </p>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Month</th>
-                    <th>Chat with Nutritionist</th>
-                    <th>Entry Point 1</th>
-                    <th>Entry Point 2</th>
+                    <th>{SUMMARY_HEADERS.month}</th>
+                    <th>{SUMMARY_HEADERS.chatClicks}</th>
+                    <th>{SUMMARY_HEADERS.entryPoint1}</th>
+                    <th>{SUMMARY_HEADERS.entryPoint2}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -231,24 +223,23 @@ export default function HomePage() {
 
         {tab === "tickets" && (
           <>
-            <p className="meta">
-              EP1/EP2 tickets with nutritionist chat click · {tickets.length} row(s)
-            </p>
+            <p className="meta">{tickets.length} row(s)</p>
             <div className="table-wrap">
               <table>
                 <thead>
                   <tr>
-                    <th>Month</th>
-                    <th>Phone</th>
-                    <th>Ticket</th>
-                    <th>Entry</th>
-                    <th>First message</th>
+                    <th>{TICKET_HEADERS.month}</th>
+                    <th>{TICKET_HEADERS.phoneNumber}</th>
+                    <th>{TICKET_HEADERS.ticketLink}</th>
+                    <th>{TICKET_HEADERS.firstMessage}</th>
+                    <th>{TICKET_HEADERS.entryType}</th>
+                    <th>{TICKET_HEADERS.clickedNutritionist}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tickets.length === 0 ? (
                     <tr>
-                      <td colSpan={5}>Run generate to load ticket dump.</td>
+                      <td colSpan={6}>Run generate to load ticket dump.</td>
                     </tr>
                   ) : (
                     tickets.map((row) => (
@@ -257,11 +248,12 @@ export default function HomePage() {
                         <td>{row.phone_number}</td>
                         <td>
                           <a href={row.ticket_link} target="_blank" rel="noreferrer">
-                            #{row.ticket_id}
+                            {row.ticket_link}
                           </a>
                         </td>
-                        <td>{row.entry_point}</td>
                         <td className="message-cell">{row.first_message}</td>
+                        <td>{row.entry_type}</td>
+                        <td>Yes</td>
                       </tr>
                     ))
                   )}

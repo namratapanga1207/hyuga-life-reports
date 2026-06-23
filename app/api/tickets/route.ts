@@ -9,8 +9,7 @@ export type TicketRow = {
   ticket_link: string;
   ticket_id: number;
   first_message: string;
-  inbox_id: number;
-  entry_point: string;
+  entry_type: string;
   level_1_tags: string;
   level_2_tags: string;
   system_tags: string;
