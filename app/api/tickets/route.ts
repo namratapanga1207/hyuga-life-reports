@@ -12,9 +12,6 @@ export type TicketRow = {
   ticket_id: number;
   first_message: string;
   entry_type: string;
-  level_1_tags: string;
-  level_2_tags: string;
-  system_tags: string;
 };
 
 export async function GET(request: NextRequest) {
