@@ -15,6 +15,10 @@ export function enumerateDays(startDate: string, endDate: string): string[] {
   return days;
 }
 
+export function daysInclusive(startDate: string, endDate: string): number {
+  return enumerateDays(startDate, endDate).length;
+}
+
 export function monthNameFromDate(isoDate: string): string {
   const d = new Date(`${isoDate}T12:00:00`);
   return d.toLocaleString("en-US", { month: "long", timeZone: "UTC" });

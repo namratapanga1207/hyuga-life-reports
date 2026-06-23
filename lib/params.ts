@@ -1,4 +1,7 @@
+import { daysInclusive } from "./dates";
+
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const MAX_REPORT_DAYS = 31;
 
 export type ReportParams = {
   startDate: string;
@@ -19,6 +22,13 @@ export function parseReportParams(
   }
   if (startDate > endDate) {
     return { error: "start_date must be on or before end_date" };
+  }
+
+  const span = daysInclusive(startDate, endDate);
+  if (span > MAX_REPORT_DAYS) {
+    return {
+      error: `Date range is ${span} days. Maximum allowed is ${MAX_REPORT_DAYS} days (1 month).`,
+    };
   }
 
   const accountId = accountIdRaw

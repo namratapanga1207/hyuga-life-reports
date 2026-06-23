@@ -271,8 +271,7 @@ CROSS JOIN (
     SELECT groupArray(toInt32(id)) AS ids, groupArray(title) AS titles
     FROM postgres_labels
     WHERE account_id = {{account_id}} AND label_type = 'system'
-) AS sl
-FORMAT JSONEachRow`;
+) AS sl`;
 
   const labelRows = (await runMetabaseSql(sql, params)) as Array<{
     ticket_id: number;

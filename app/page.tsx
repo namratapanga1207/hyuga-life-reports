@@ -43,6 +43,7 @@ export default function HomePage() {
   const [endDate, setEndDate] = useState(defaults.end);
   const [tab, setTab] = useState<Tab>("summary");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [summary, setSummary] = useState<SummaryRow[]>([]);
   const [tickets, setTickets] = useState<TicketRow[]>([]);
@@ -60,21 +61,62 @@ export default function HomePage() {
   const runReport = useCallback(async () => {
     setLoading(true);
     setError(null);
+    setProgress("Starting…");
     try {
       const res = await fetch(`/api/report?${qs}`);
-      const data = await res.json();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `Report failed (${res.status})`);
+      }
+      if (!res.body) throw new Error("No response body");
 
-      if (!res.ok) throw new Error(data.error ?? "Report failed");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
 
-      setSummary(data.summary ?? []);
-      setTickets(data.tickets ?? []);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.trim()) continue;
+          const event = JSON.parse(line) as {
+            type: string;
+            phase?: string;
+            done?: number;
+            total?: number;
+            error?: string;
+            summary?: SummaryRow[];
+            tickets?: TicketRow[];
+          };
+
+          if (event.type === "progress") {
+            if (event.phase === "fetch" && event.total) {
+              setProgress(`Loading messages ${event.done}/${event.total}…`);
+            } else if (event.phase === "process") {
+              setProgress("Building reports…");
+            }
+          } else if (event.type === "error") {
+            throw new Error(event.error ?? "Report failed");
+          } else if (event.type === "result") {
+            setSummary(event.summary ?? []);
+            setTickets(event.tickets ?? []);
+            setProgress(null);
+          }
+        }
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Failed to load reports";
       setError(
         msg === "Failed to fetch"
-          ? "Request timed out — large date ranges can take 1–2 minutes. Try again or use a shorter range."
+          ? "Connection lost while loading — please try again."
           : msg,
       );
+      setProgress(null);
     } finally {
       setLoading(false);
     }
@@ -153,7 +195,9 @@ export default function HomePage() {
               disabled={loading}
               onClick={runReport}
             >
-              {loading ? "Generating… (may take 1–2 min)" : "Generate reports"}
+              {loading
+                ? progress ?? "Generating…"
+                : "Generate reports"}
             </button>
             <button
               type="button"
@@ -166,6 +210,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {progress && !error && <div className="status">{progress}</div>}
 
       {error && <div className="status error">{error}</div>}
 

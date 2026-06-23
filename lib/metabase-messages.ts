@@ -6,6 +6,9 @@ import { runMetabaseSql } from "./metabase";
 
 export const MESSAGE_CONTENT_CARD_ID = 2902;
 
+/** Parallel Metabase day queries — 15 workers completes a 31-day month in ~60s. */
+const FETCH_CONCURRENCY = 16;
+
 export type MessageRow = {
   message_id: unknown;
   created_at_content: string;
@@ -22,6 +25,11 @@ export type MessageRow = {
   email: string;
   message_content: string;
   sender_type: string;
+};
+
+export type FetchProgress = {
+  done: number;
+  total: number;
 };
 
 const CARD_2902_SQL = readFileSync(
@@ -49,7 +57,8 @@ async function fetchDay(
 async function mapWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
-  fn: (item: T) => Promise<R>,
+  fn: (item: T, index: number) => Promise<R>,
+  onItemDone?: (index: number) => void,
 ): Promise<R[]> {
   const results: R[] = new Array(items.length);
   let next = 0;
@@ -57,7 +66,8 @@ async function mapWithConcurrency<T, R>(
   async function worker() {
     while (next < items.length) {
       const i = next++;
-      results[i] = await fn(items[i]);
+      results[i] = await fn(items[i], i);
+      onItemDone?.(i);
     }
   }
 
@@ -70,14 +80,22 @@ async function mapWithConcurrency<T, R>(
 /**
  * Full message dump from Metabase card 2902.
  * Uses /api/dataset (not /api/card/.../query) to avoid Metabase's 2k row cap on card queries.
- * Fetches day-by-day so large months are not truncated at max-results.
+ * Fetches day-by-day in parallel so a full month stays within serverless time limits.
  */
 export async function fetchMessageContent(
   params: ReportParams,
+  onProgress?: (progress: FetchProgress) => void,
 ): Promise<MessageRow[]> {
   const days = enumerateDays(params.startDate, params.endDate);
-  const chunks = await mapWithConcurrency(days, 12, (day) =>
-    fetchDay(day, params.accountId),
+  let done = 0;
+  const chunks = await mapWithConcurrency(
+    days,
+    FETCH_CONCURRENCY,
+    (day) => fetchDay(day, params.accountId),
+    () => {
+      done += 1;
+      onProgress?.({ done, total: days.length });
+    },
   );
   return chunks.flat();
 }
