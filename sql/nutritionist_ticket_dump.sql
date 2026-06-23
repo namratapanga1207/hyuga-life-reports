@@ -24,16 +24,17 @@ nutri_clicks AS (
 
 first_incoming AS (
     SELECT
-        nc.conversation_id AS conversation_id,
-        argMin(m.content, m.created_at) AS first_message
-    FROM nutri_clicks AS nc
-    INNER JOIN postgres_hd_messages AS m
-        ON m.conversation_id = nc.conversation_id
-        AND m.account_id = (SELECT account_id FROM params)
-    WHERE m.message_type = 0
-      AND m.created_at <= nc.click_at
-      AND positionCaseInsensitive(m.content, 'Chat with Nutritionist') = 0
-    GROUP BY nc.conversation_id
+        conversation_id,
+        argMin(content, created_at) AS first_message,
+        argMin(inbox_id, created_at) AS first_inbox_id
+    FROM postgres_hd_messages
+    PREWHERE account_id = (SELECT account_id FROM params)
+      AND created_at >= (SELECT start_dt FROM params)
+      AND created_at < (SELECT end_dt_excl FROM params)
+      AND conversation_id IN (SELECT conversation_id FROM nutri_clicks)
+    WHERE message_type = 0
+      AND positionCaseInsensitive(content, 'Chat with Nutritionist') = 0
+    GROUP BY conversation_id
 ),
 
 tickets AS (
@@ -59,9 +60,14 @@ rows AS (
         ) AS ticket_link,
         fi.first_message AS first_message,
         multiIf(
-            positionCaseInsensitive(fi.first_message, 'looking for Nutritionist advice') > 0,
+            fi.first_inbox_id IN (35028, 35141)
+                AND positionCaseInsensitive(
+                    fi.first_message,
+                    'looking for Nutritionist advice for my health & wellness needs'
+                ) > 0,
             'Entry Point 1',
-            positionCaseInsensitive(fi.first_message, 'I need help with') > 0,
+            fi.first_inbox_id IN (35028, 35141)
+                AND startsWith(fi.first_message, 'Hi, I need help with'),
             'Entry Point 2',
             'Other'
         ) AS entry_type,
