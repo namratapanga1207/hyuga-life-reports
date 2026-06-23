@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { queryClickHouse } from "@/lib/clickhouse";
-import { buildTicketDumpQuery } from "@/lib/queries";
+import { runMetabaseSql } from "@/lib/metabase";
+import { TICKET_DUMP_SQL } from "@/lib/queries";
 import { parseReportParams } from "@/lib/params";
 
 export type TicketRow = {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const rows = await queryClickHouse<TicketRow>(buildTicketDumpQuery(parsed));
+    const rows = (await runMetabaseSql(TICKET_DUMP_SQL, parsed)) as TicketRow[];
     return NextResponse.json({
       params: parsed,
       count: rows.length,

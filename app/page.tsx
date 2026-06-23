@@ -50,7 +50,7 @@ export default function HomePage() {
   useEffect(() => {
     fetch("/api/health")
       .then((r) => r.json())
-      .then((d) => setConfigured(Boolean(d.clickhouse)))
+      .then((d) => setConfigured(Boolean(d.metabase)))
       .catch(() => setConfigured(false));
   }, []);
 
@@ -126,8 +126,8 @@ export default function HomePage() {
 
       {configured === false && (
         <div className="status error">
-          ClickHouse env vars are not set. Add them in Vercel (or <code>.env.local</code>) then
-          redeploy.
+          Metabase env vars are not set. Add <code>METABASE_API_KEY</code> in Vercel (or{" "}
+          <code>.env.local</code>) then redeploy.
         </div>
       )}
 

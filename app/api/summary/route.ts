@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { queryClickHouse } from "@/lib/clickhouse";
-import { buildSummaryQuery } from "@/lib/queries";
+import { runMetabaseSql } from "@/lib/metabase";
+import { SUMMARY_SQL } from "@/lib/queries";
 import { parseReportParams } from "@/lib/params";
 
 export type SummaryRow = {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const rows = await queryClickHouse<SummaryRow>(buildSummaryQuery(parsed));
+    const rows = (await runMetabaseSql(SUMMARY_SQL, parsed)) as SummaryRow[];
     return NextResponse.json({
       params: parsed,
       rows,

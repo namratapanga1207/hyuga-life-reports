@@ -14,7 +14,7 @@ Web app that replaces the [Google Colab notebook](https://colab.research.google.
 ## Stack
 
 - **Frontend:** Next.js (React)
-- **Backend:** Vercel serverless API routes → ClickHouse
+- **Backend:** Vercel serverless API routes → Metabase (ClickHouse warehouse)
 - **Account:** Hyuga Life `28052` (override via `HYUGA_ACCOUNT_ID`)
 
 ## Local setup
@@ -22,7 +22,7 @@ Web app that replaces the [Google Colab notebook](https://colab.research.google.
 ```bash
 npm install
 cp .env.example .env.local
-# fill ClickHouse credentials
+# fill METABASE_API_KEY
 npm run dev
 ```
 
@@ -33,10 +33,9 @@ Open http://localhost:3000
 1. Push this repo to GitHub
 2. Import in [Vercel](https://vercel.com/new)
 3. Set environment variables:
-   - `CLICKHOUSE_HOST`
-   - `CLICKHOUSE_PORT` (default `8443`)
-   - `CLICKHOUSE_USER`
-   - `CLICKHOUSE_PASSWORD`
+   - `METABASE_API_KEY`
+   - `METABASE_BASE_URL` (optional, default `https://metabase.limechat.ai`)
+   - `METABASE_DATABASE_ID` (optional, default `82`)
    - `HYUGA_ACCOUNT_ID` (optional, default `28052`)
 
 ## API
@@ -49,4 +48,4 @@ GET /api/health
 
 ## Colab origin
 
-The original notebook read `april.csv` / `may.csv` from Google Drive and exported Excel files. This app uses the same business logic via ClickHouse SQL (validated against the Google Sheet reports).
+The original notebook read `april.csv` / `may.csv` from Google Drive and exported Excel files. This app uses the same business logic via Metabase native SQL against ClickHouse (`sql/nutritionist_ticket_*.sql`), validated against the Google Sheet reports.

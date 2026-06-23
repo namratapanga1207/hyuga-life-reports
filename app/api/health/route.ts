@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { clickhouseConfigured } from "@/lib/clickhouse";
+import { metabaseConfigured } from "@/lib/metabase";
 
 export async function GET() {
   return NextResponse.json({
-    clickhouse: await clickhouseConfigured(),
+    metabase: metabaseConfigured(),
     accountId: Number(process.env.HYUGA_ACCOUNT_ID ?? "28052"),
   });
 }
