@@ -18,7 +18,9 @@ const TEMPLATE_TAGS = {
 function config() {
   const apiKey = process.env.METABASE_API_KEY?.trim();
   const baseUrl = (
-    process.env.METABASE_BASE_URL?.trim() || "https://metabase.limechat.ai"
+    process.env.METABASE_BASE_URL?.trim() ||
+    process.env.METABASE_URL?.trim() ||
+    "https://metabase.limechat.ai"
   ).replace(/\/$/, "");
   const databaseId = Number(process.env.METABASE_DATABASE_ID ?? "82");
 

@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runMetabaseSql } from "@/lib/metabase";
-import { TICKET_DUMP_SQL } from "@/lib/queries";
+import { fetchMessageContent } from "@/lib/metabase-messages";
+import {
+  attachTicketLabels,
+  buildTicketDumpFromMessages,
+  type TicketRow,
+} from "@/lib/nutritionist-report";
 import { parseReportParams } from "@/lib/params";
 
 export const maxDuration = 300;
 
-export type TicketRow = {
-  phone_number: string;
-  ticket_link: string;
-  inbox: string;
-  first_message: string;
-  entry_type: string;
-  ticket_id: number;
-  level_1_tags: string;
-  level_2_tags: string;
-  level_3_tags: string;
-  system_tags: string;
-};
+export type { TicketRow };
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -31,9 +24,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const rows = (await runMetabaseSql(TICKET_DUMP_SQL, parsed)) as TicketRow[];
+    const messages = await fetchMessageContent(parsed);
+    const base = buildTicketDumpFromMessages(messages, parsed);
+    const rows = await attachTicketLabels(base, parsed);
     return NextResponse.json({
       params: parsed,
+      message_count: messages.length,
       count: rows.length,
       rows,
     });

@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runMetabaseSql } from "@/lib/metabase";
-import { SUMMARY_SQL } from "@/lib/queries";
+import { fetchMessageContent } from "@/lib/metabase-messages";
+import {
+  buildSummaryFromMessages,
+  type SummaryRow,
+} from "@/lib/nutritionist-report";
 import { parseReportParams } from "@/lib/params";
 
-export const maxDuration = 300;
+export type { SummaryRow };
 
-export type SummaryRow = {
-  month: string;
-  chat_with_nutritionist_clicks: number;
-  entry_point_1: number;
-  entry_point_2: number;
-};
+export const maxDuration = 300;
 
 export async function GET(request: NextRequest) {
   const sp = request.nextUrl.searchParams;
@@ -25,9 +23,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const rows = (await runMetabaseSql(SUMMARY_SQL, parsed)) as SummaryRow[];
+    const messages = await fetchMessageContent(parsed);
+    const rows = buildSummaryFromMessages(messages, parsed);
     return NextResponse.json({
       params: parsed,
+      message_count: messages.length,
       rows,
       total: {
         chat_with_nutritionist_clicks: rows.reduce(
