@@ -1,4 +1,4 @@
--- Summary tab — matches Google Sheet / Colab logic
+-- Summary tab — matches Google Sheet headers
 -- Params: start_date, end_date, account_id
 
 WITH
@@ -25,7 +25,7 @@ nutri_clicks AS (
 first_incoming AS (
     SELECT
         conversation_id,
-        tupleElement(argMin(tuple(content, inbox_id), created_at), 1) AS first_message
+        argMin(content, created_at) AS first_message
     FROM postgres_hd_messages
     PREWHERE account_id = (SELECT account_id FROM params)
       AND created_at >= (SELECT start_dt FROM params)
@@ -40,13 +40,7 @@ tagged AS (
     SELECT
         nc.conversation_id,
         toStartOfMonth(nc.click_at, 'Asia/Kolkata') AS month_start,
-        multiIf(
-            positionCaseInsensitive(fi.first_message, 'looking for Nutritionist advice') > 0,
-            'entry_point_1',
-            positionCaseInsensitive(fi.first_message, 'I need help with') > 0,
-            'entry_point_2',
-            'other'
-        ) AS entry_bucket
+        fi.first_message AS first_message
     FROM nutri_clicks AS nc
     LEFT JOIN first_incoming AS fi ON fi.conversation_id = nc.conversation_id
 )
@@ -54,8 +48,18 @@ tagged AS (
 SELECT
     formatDateTime(month_start, '%M') AS month,
     count() AS chat_with_nutritionist_clicks,
-    countIf(entry_bucket = 'entry_point_1') AS entry_point_1,
-    countIf(entry_bucket = 'entry_point_2') AS entry_point_2
+    countIf(
+        lengthUTF8(first_message) = 70
+            AND positionCaseInsensitive(
+                first_message,
+                'looking for Nutritionist advice for my health & wellness needs'
+            ) > 0
+    ) AS entry_point_1,
+    countIf(
+        startsWith(first_message, 'Hi, I need help with')
+            AND positionCaseInsensitive(first_message, 'hyugalife.com/product') > 0
+            AND position(first_message, '\n') = 0
+    ) AS entry_point_2
 FROM tagged
 GROUP BY month_start
 ORDER BY month_start

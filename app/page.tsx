@@ -97,12 +97,16 @@ export default function HomePage() {
     } else {
       exportXlsx(
         tickets.map((r) => ({
-          [TICKET_HEADERS.month]: r.month,
           [TICKET_HEADERS.phoneNumber]: r.phone_number,
           [TICKET_HEADERS.ticketLink]: r.ticket_link,
+          [TICKET_HEADERS.inbox]: r.inbox,
           [TICKET_HEADERS.firstMessage]: r.first_message,
           [TICKET_HEADERS.entryType]: r.entry_type,
-          [TICKET_HEADERS.clickedNutritionist]: "Yes",
+          [TICKET_HEADERS.ticketId]: r.ticket_id,
+          [TICKET_HEADERS.level1Tags]: r.level_1_tags,
+          [TICKET_HEADERS.level2Tags]: r.level_2_tags,
+          [TICKET_HEADERS.level3Tags]: r.level_3_tags,
+          [TICKET_HEADERS.systemTags]: r.system_tags,
         })),
         "Tickets",
         `hyuga_nutritionist_tickets_${stamp}.xlsx`,
@@ -228,32 +232,40 @@ export default function HomePage() {
               <table>
                 <thead>
                   <tr>
-                    <th>{TICKET_HEADERS.month}</th>
                     <th>{TICKET_HEADERS.phoneNumber}</th>
                     <th>{TICKET_HEADERS.ticketLink}</th>
+                    <th>{TICKET_HEADERS.inbox}</th>
                     <th>{TICKET_HEADERS.firstMessage}</th>
                     <th>{TICKET_HEADERS.entryType}</th>
-                    <th>{TICKET_HEADERS.clickedNutritionist}</th>
+                    <th>{TICKET_HEADERS.ticketId}</th>
+                    <th>{TICKET_HEADERS.level1Tags}</th>
+                    <th>{TICKET_HEADERS.level2Tags}</th>
+                    <th>{TICKET_HEADERS.level3Tags}</th>
+                    <th>{TICKET_HEADERS.systemTags}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {tickets.length === 0 ? (
                     <tr>
-                      <td colSpan={6}>Run generate to load ticket dump.</td>
+                      <td colSpan={10}>Run generate to load ticket dump.</td>
                     </tr>
                   ) : (
                     tickets.map((row) => (
-                      <tr key={`${row.ticket_id}-${row.month}`}>
-                        <td>{row.month}</td>
+                      <tr key={row.ticket_id}>
                         <td>{row.phone_number}</td>
                         <td>
                           <a href={row.ticket_link} target="_blank" rel="noreferrer">
                             {row.ticket_link}
                           </a>
                         </td>
+                        <td>{row.inbox}</td>
                         <td className="message-cell">{row.first_message}</td>
                         <td>{row.entry_type}</td>
-                        <td>Yes</td>
+                        <td>{row.ticket_id}</td>
+                        <td>{row.level_1_tags}</td>
+                        <td>{row.level_2_tags}</td>
+                        <td>{row.level_3_tags}</td>
+                        <td>{row.system_tags}</td>
                       </tr>
                     ))
                   )}

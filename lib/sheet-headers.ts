@@ -8,14 +8,14 @@ export const SUMMARY_HEADERS = {
 } as const;
 
 export const TICKET_HEADERS = {
-  month: "Month",
   phoneNumber: "Phone Number",
   ticketLink: "Ticket Link",
+  inbox: "Inbox",
   firstMessage: "First Message",
   entryType: "Entry Type",
-  clickedNutritionist: 'Clicked Chat with Nutritionist',
   ticketId: "Ticket ID",
-  level1Tags: "Level 1 Tags",
+  level1Tags: "Level 1 Tags (Main)",
   level2Tags: "Level 2 Tags",
+  level3Tags: "Level 3 Tags",
   systemTags: "System Tags",
 } as const;

@@ -6,12 +6,16 @@ import { parseReportParams } from "@/lib/params";
 export const maxDuration = 300;
 
 export type TicketRow = {
-  month: string;
   phone_number: string;
   ticket_link: string;
-  ticket_id: number;
+  inbox: string;
   first_message: string;
   entry_type: string;
+  ticket_id: number;
+  level_1_tags: string;
+  level_2_tags: string;
+  level_3_tags: string;
+  system_tags: string;
 };
 
 export async function GET(request: NextRequest) {
