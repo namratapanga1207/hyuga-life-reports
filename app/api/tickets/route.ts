@@ -3,6 +3,8 @@ import { runMetabaseSql } from "@/lib/metabase";
 import { TICKET_DUMP_SQL } from "@/lib/queries";
 import { parseReportParams } from "@/lib/params";
 
+export const maxDuration = 300;
+
 export type TicketRow = {
   month: string;
   phone_number: string;

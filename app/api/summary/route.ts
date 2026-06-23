@@ -3,6 +3,8 @@ import { runMetabaseSql } from "@/lib/metabase";
 import { SUMMARY_SQL } from "@/lib/queries";
 import { parseReportParams } from "@/lib/params";
 
+export const maxDuration = 300;
+
 export type SummaryRow = {
   month: string;
   chat_with_nutritionist_clicks: number;

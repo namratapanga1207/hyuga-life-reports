@@ -28,6 +28,8 @@ first_incoming AS (
     FROM postgres_hd_messages AS m
     INNER JOIN nutri_clicks AS nc ON nc.conversation_id = m.conversation_id
     WHERE m.account_id = (SELECT account_id FROM params)
+      AND m.created_at >= (SELECT start_dt FROM params)
+      AND m.created_at < (SELECT end_dt_excl FROM params)
       AND m.message_type = 0
       AND positionCaseInsensitive(m.content, 'Chat with Nutritionist') = 0
     GROUP BY m.conversation_id
