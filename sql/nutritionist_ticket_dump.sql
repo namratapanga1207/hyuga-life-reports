@@ -24,14 +24,16 @@ nutri_clicks AS (
 
 first_incoming AS (
     SELECT
-        conversation_id,
-        argMin(content, created_at) AS first_message
-    FROM postgres_hd_messages
-    PREWHERE account_id = (SELECT account_id FROM params)
-      AND conversation_id IN (SELECT conversation_id FROM nutri_clicks)
-    WHERE message_type = 0
-      AND positionCaseInsensitive(content, 'Chat with Nutritionist') = 0
-    GROUP BY conversation_id
+        nc.conversation_id AS conversation_id,
+        argMin(m.content, m.created_at) AS first_message
+    FROM nutri_clicks AS nc
+    INNER JOIN postgres_hd_messages AS m
+        ON m.conversation_id = nc.conversation_id
+    PREWHERE m.account_id = (SELECT account_id FROM params)
+    WHERE m.message_type = 0
+      AND m.created_at <= nc.click_at
+      AND positionCaseInsensitive(m.content, 'Chat with Nutritionist') = 0
+    GROUP BY nc.conversation_id
 ),
 
 tickets AS (
