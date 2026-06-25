@@ -140,7 +140,6 @@ export default function HomePage() {
         tickets.map((r) => ({
           [TICKET_HEADERS.phoneNumber]: r.phone_number,
           [TICKET_HEADERS.ticketLink]: r.ticket_link,
-          [TICKET_HEADERS.inbox]: r.inbox,
           [TICKET_HEADERS.firstMessage]: r.first_message,
           [TICKET_HEADERS.entryType]: r.entry_type,
           [TICKET_HEADERS.ticketId]: r.ticket_id,
@@ -158,7 +157,9 @@ export default function HomePage() {
   return (
     <main className="page">
       <header className="hero">
-        <h1>Hyuga Life — Nutritionist Reports</h1>
+        <p className="hero-kicker">Hyuga Life</p>
+        <h1>Nutritionist Reports Dashboard</h1>
+        <p className="hero-subtitle">Brand-ready reporting view for summary and ticket dump exports.</p>
       </header>
 
       {configured === false && (
@@ -279,7 +280,6 @@ export default function HomePage() {
                   <tr>
                     <th>{TICKET_HEADERS.phoneNumber}</th>
                     <th>{TICKET_HEADERS.ticketLink}</th>
-                    <th>{TICKET_HEADERS.inbox}</th>
                     <th>{TICKET_HEADERS.firstMessage}</th>
                     <th>{TICKET_HEADERS.entryType}</th>
                     <th>{TICKET_HEADERS.ticketId}</th>
@@ -292,7 +292,7 @@ export default function HomePage() {
                 <tbody>
                   {tickets.length === 0 ? (
                     <tr>
-                      <td colSpan={10}>Run generate to load ticket dump.</td>
+                      <td colSpan={9}>Run generate to load ticket dump.</td>
                     </tr>
                   ) : (
                     tickets.map((row) => (
@@ -303,7 +303,6 @@ export default function HomePage() {
                             {row.ticket_link}
                           </a>
                         </td>
-                        <td>{row.inbox}</td>
                         <td className="message-cell">{row.first_message}</td>
                         <td>{row.entry_type}</td>
                         <td>{row.ticket_id}</td>

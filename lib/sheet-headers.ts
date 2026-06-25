@@ -10,7 +10,6 @@ export const SUMMARY_HEADERS = {
 export const TICKET_HEADERS = {
   phoneNumber: "Phone Number",
   ticketLink: "Ticket Link",
-  inbox: "Inbox",
   firstMessage: "First Message",
   entryType: "Entry Type",
   ticketId: "Ticket ID",
