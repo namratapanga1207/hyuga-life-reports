@@ -30,6 +30,10 @@ function containsNutritionistClick(content: string): boolean {
 }
 
 function isSummaryEntryPoint1(content: string): boolean {
+  return content.includes("looking for Nutritionist advice");
+}
+
+function isTicketEntryPoint1(content: string): boolean {
   const text = content.trim();
   return (
     [...text].length === 70 &&
@@ -53,7 +57,7 @@ function isSummaryEntryPoint2(content: string): boolean {
 function ticketEntryType(
   content: string,
 ): "Entry Point 1" | "Entry Point 2" | "Other" {
-  if (isSummaryEntryPoint1(content)) return "Entry Point 1";
+  if (isTicketEntryPoint1(content)) return "Entry Point 1";
   if (isSummaryEntryPoint2(content)) return "Entry Point 2";
   return "Other";
 }
