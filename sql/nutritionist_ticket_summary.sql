@@ -49,7 +49,11 @@ SELECT
     formatDateTime(month_start, '%M') AS month,
     count() AS chat_with_nutritionist_clicks,
     countIf(
-        positionCaseInsensitive(first_message, 'looking for Nutritionist advice') > 0
+        lengthUTF8(first_message) = 70
+            AND positionCaseInsensitive(
+                first_message,
+                'looking for Nutritionist advice for my health & wellness needs'
+            ) > 0
     ) AS entry_point_1,
     countIf(
         startsWith(first_message, 'Hi, I need help with')

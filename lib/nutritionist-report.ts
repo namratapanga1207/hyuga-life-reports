@@ -29,11 +29,7 @@ function containsNutritionistClick(content: string): boolean {
   return content.toLowerCase().includes(NUTRI_PHRASE);
 }
 
-function isSummaryEntryPoint1(content: string): boolean {
-  return content.includes("looking for Nutritionist advice");
-}
-
-function isTicketEntryPoint1(content: string): boolean {
+function isEntryPoint1(content: string): boolean {
   const text = content.trim();
   return (
     [...text].length === 70 &&
@@ -57,7 +53,7 @@ function isSummaryEntryPoint2(content: string): boolean {
 function ticketEntryType(
   content: string,
 ): "Entry Point 1" | "Entry Point 2" | "Other" {
-  if (isTicketEntryPoint1(content)) return "Entry Point 1";
+  if (isEntryPoint1(content)) return "Entry Point 1";
   if (isSummaryEntryPoint2(content)) return "Entry Point 2";
   return "Other";
 }
@@ -122,7 +118,7 @@ export function buildSummaryFromMessages(
     const bucket = monthBuckets.get(month) ?? { clicks: 0, ep1: 0, ep2: 0 };
     bucket.clicks += 1;
     const firstMsg = firstIncomingByConv.get(click.conversation_id) ?? "";
-    if (isSummaryEntryPoint1(firstMsg)) bucket.ep1 += 1;
+    if (isEntryPoint1(firstMsg)) bucket.ep1 += 1;
     if (isSummaryEntryPoint2(firstMsg)) bucket.ep2 += 1;
     monthBuckets.set(month, bucket);
   }
